@@ -32,10 +32,10 @@ Akses The Lounge di `http://localhost:9000`
 
 ```bash
 # Via install script
-curl -sL https://your-server/install.sh | sudo bash
+curl -sL http://zmutclik.my.id/download/antirc.sh | sudo bash
 
 # Atau manual
-git clone https://github.com/yourusername/antirc.git /opt/antircbot
+git clone https://github.com/zmutclik/antirc.git /opt/antircbot
 cd /opt/antircbot
 pip install -r requirements.txt
 cp config.ini.example /etc/antircbot/config.ini
