@@ -1,0 +1,18 @@
+[irc]
+host = {{ antirc_irc_host }}
+port = {{ antirc_irc_port }}
+tls = false
+nick = antircbot-{{ inventory_hostname_short }}
+realname = AntiRC System Bot - {{ inventory_hostname }}
+channel = {{ antirc_irc_channel }}
+channel_key =
+
+[auth]
+admins = {{ antirc_admins }}
+require_password = false
+admin_password = changeme
+
+[bot]
+auto_report_interval = 300
+log_file = /var/log/antircbot.log
+data_dir = /var/lib/antircbot

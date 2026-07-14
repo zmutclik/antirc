@@ -1,0 +1,26 @@
+[irc]
+; IRC server settings
+host = irc.local
+port = 6667
+tls = false
+nick = antircbot
+realname = AntiRC System Bot
+channel = #sysadmin
+channel_key =
+
+[auth]
+; Comma-separated list of admin nicks and/or hostmasks
+; Example: admins = admin1, admin2, admin1!*@192.168.1.*
+admins =
+; Set to true to require password for admin commands
+require_password = false
+; Admin password (used with !auth command)
+admin_password = changeme
+
+[bot]
+; Auto-report interval in seconds (0 to disable)
+auto_report_interval = 300
+; Log file path
+log_file = /var/log/antircbot.log
+; Data directory for persistent storage
+data_dir = /var/lib/antircbot

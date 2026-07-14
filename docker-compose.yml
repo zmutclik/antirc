@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  ircbot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: antircbot
+    restart: unless-stopped
+    environment:
+      - ANTIRC_CONFIG=/etc/antircbot/config.ini
+      - ANTIRC_IRC_HOST=ircd
+      - ANTIRC_IRC_PORT=6667
+      - ANTIRC_IRC_CHANNEL=#sysadmin
+    volumes:
+      - ./config.ini:/etc/antircbot/config.ini:ro
+      - antircbot-data:/var/lib/antircbot
+      - antircbot-logs:/var/log
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    networks:
+      - antirc-network
+    # Required for psutil to work properly in container
+    pid: host
+
+  # Optional: IRC Server (InspIRCd)
+  ircd:
+    image: inspircd/inspircd-docker
+    container_name: antirc-ircd
+    restart: unless-stopped
+    ports:
+      - "6667:6667"
+      - "6697:6697"
+    volumes:
+      - ./server/ircd.conf:/inspircd/conf/inspircd.conf:ro
+      - ircd-data:/inspircd/data
+    networks:
+      - antirc-network
+
+  # Optional: The Lounge Web IRC Client
+  thelounge:
+    image: thelounge/thelounge:latest
+    container_name: antirc-thelounge
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - thelounge-data:/var/opt/thelounge
+      - ./server/thelounge-config.js:/var/opt/thelounge/config.js:ro
+    networks:
+      - antirc-network
+    depends_on:
+      - ircd
+
+volumes:
+  antircbot-data:
+  antircbot-logs:
+  ircd-data:
+  thelounge-data:
+
+networks:
+  antirc-network:
+    driver: bridge

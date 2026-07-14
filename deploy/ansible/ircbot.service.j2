@@ -1,0 +1,19 @@
+[Unit]
+Description=AntiRC IRC Bot
+After=network.target
+
+[Service]
+Type=simple
+User={{ antirc_user }}
+Group={{ antirc_user }}
+WorkingDirectory={{ antirc_install_dir }}
+Environment=ANTIRC_CONFIG={{ antirc_config_dir }}/config.ini
+Environment=PATH={{ antirc_install_dir }}/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart={{ antirc_install_dir }}/venv/bin/python {{ antirc_install_dir }}/bot/ircbot.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

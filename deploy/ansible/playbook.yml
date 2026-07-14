@@ -1,0 +1,143 @@
+---
+- name: Deploy AntiRC Bot to all servers
+  hosts: all
+  become: yes
+  vars:
+    antirc_install_dir: /opt/antircbot
+    antirc_config_dir: /etc/antircbot
+    antirc_user: antircbot
+    antirc_irc_host: "{{ antirc_irc_host | default('irc.local') }}"
+    antirc_irc_port: "{{ antirc_irc_port | default(6667) }}"
+    antirc_irc_channel: "{{ antirc_irc_channel | default('#sysadmin') }}"
+    antirc_admins: "{{ antirc_admins | default('') }}"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Install dependencies (Debian/Ubuntu)
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - git
+          - curl
+          - netcat-openbsd
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install dependencies (RHEL/CentOS)
+      yum:
+        name:
+          - python3
+          - python3-pip
+          - git
+          - curl
+          - nc
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Create antircbot user
+      user:
+        name: "{{ antirc_user }}"
+        system: yes
+        shell: /bin/false
+        home: "{{ antirc_install_dir }}"
+        createhome: no
+
+    - name: Create installation directory
+      file:
+        path: "{{ antirc_install_dir }}"
+        state: directory
+        owner: "{{ antirc_user }}"
+        group: "{{ antirc_user }}"
+        mode: '0755'
+
+    - name: Copy bot files
+      copy:
+        src: "{{ item }}"
+        dest: "{{ antirc_install_dir }}/"
+        owner: "{{ antirc_user }}"
+        group: "{{ antirc_user }}"
+        mode: '0644'
+      with_fileglob:
+        - "../../bot/*"
+        - "../../bot/**/*"
+        - "../../requirements.txt"
+
+    - name: Create Python virtual environment
+      pip:
+        virtualenv: "{{ antirc_install_dir }}/venv"
+        virtualenv_command: python3 -m venv
+        requirements: "{{ antirc_install_dir }}/requirements.txt"
+
+    - name: Create config directory
+      file:
+        path: "{{ antirc_config_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy config.ini
+      template:
+        src: config.ini.j2
+        dest: "{{ antirc_config_dir }}/config.ini"
+        owner: "{{ antirc_user }}"
+        group: "{{ antirc_user }}"
+        mode: '0640'
+      notify: restart ircbot
+
+    - name: Create data directory
+      file:
+        path: /var/lib/antircbot
+        state: directory
+        owner: "{{ antirc_user }}"
+        group: "{{ antirc_user }}"
+        mode: '0755'
+
+    - name: Create log files
+      file:
+        path: "{{ item }}"
+        state: touch
+        owner: "{{ antirc_user }}"
+        group: "{{ antirc_user }}"
+        mode: '0644'
+      loop:
+        - /var/log/antircbot.log
+        - /var/log/antircbot-auto-update.log
+
+    - name: Deploy systemd service
+      template:
+        src: ircbot.service.j2
+        dest: /etc/systemd/system/ircbot.service
+        mode: '0644'
+      notify:
+        - reload systemd
+        - restart ircbot
+
+    - name: Configure sudo for apt commands
+      copy:
+        content: |
+          {{ antirc_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt update, /usr/bin/apt upgrade *, /usr/bin/apt autoremove *, /usr/bin/apt list --upgradable
+        dest: /etc/sudoers.d/antircbot
+        mode: '0440'
+        validate: 'visudo -cf %s'
+
+    - name: Enable and start ircbot service
+      systemd:
+        name: ircbot
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: restart ircbot
+      systemd:
+        name: ircbot
+        state: restarted
