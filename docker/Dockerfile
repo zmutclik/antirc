@@ -1,7 +1,7 @@
 # AntiRC Bot Docker Image
 FROM python:3.11-slim
 
-LABEL maintainer="antirc"
+LABEL maintainer="fahrudin.hariadi@gmail.com"
 LABEL description="AntiRC IRC Bot for Linux monitoring and update automation"
 
 # Install system dependencies
