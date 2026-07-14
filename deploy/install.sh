@@ -1,11 +1,11 @@
 #!/bin/bash
 # AntiRC Bot Installation Script
-# Usage: curl -sL https://your-server/install.sh | bash
-# Or: wget -qO- https://your-server/install.sh | bash
+# Usage: curl -sL https://raw.githubusercontent.com/zmutclik/antirc/refs/heads/main/deploy/install.sh | bash
+# Or: wget -qO- https://raw.githubusercontent.com/zmutclik/antirc/refs/heads/main/deploy/install.sh | bash
 
 set -e
 
-REPO_URL="https://github.com/yourusername/antirc.git"
+REPO_URL="https://github.com/zmutclik/antirc.git"
 INSTALL_DIR="/opt/antircbot"
 CONFIG_DIR="/etc/antircbot"
 LOG_DIR="/var/log"
@@ -68,20 +68,20 @@ mkdir -p "$CONFIG_DIR"
 
 # Create default config if not exists
 if [ ! -f "$CONFIG_DIR/config.ini" ]; then
-    cat > "$CONFIG_DIR/config.ini" << 'EOF'
+    cat > "$CONFIG_DIR/config.ini" << EOF
 [irc]
-host = irc.local
+host = antirc.zmutclik.my.id
 port = 6667
 tls = false
-nick = antircbot
+nick = $(hostname)
 realname = AntiRC System Bot
 channel = #sysadmin
 channel_key =
 
 [auth]
-admins =
+admins = zmutclik
 require_password = false
-admin_password = changeme
+admin_password = pacitan
 
 [bot]
 auto_report_interval = 300
