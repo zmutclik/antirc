@@ -3,7 +3,7 @@
 module.exports = {
   // Public host name
   public: false,
-  host: "antirc.zmutclik.my.id",
+  host: undefined,
 
   // Web server port
   port: 9000,
