@@ -1,7 +1,7 @@
 #!/bin/bash
 # AntiRC Bot Installation Script
-# Usage: curl -sL https://raw.githubusercontent.com/zmutclik/antirc/refs/heads/main/deploy/install.sh | bash
-# Or: wget -qO- https://raw.githubusercontent.com/zmutclik/antirc/refs/heads/main/deploy/install.sh | bash
+# Usage: curl -sL http://zmutclik.my.id/download/antirc.sh | bash
+# Or: wget -qO- http://zmutclik.my.id/download/antirc.sh | bash
 
 set -e
 
